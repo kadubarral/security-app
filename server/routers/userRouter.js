@@ -2,55 +2,121 @@ const router = require("express").Router();
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const auth = require("../middleware/auth");
 
-router.post("/", async (req, res) => {
+router.post("/register", auth, async (req, res) => {
   try {
-    const { email, password, passwordVerify } = req.body;
+    const { name, email, username, scl } = req.body;
+
+    console.log(req.user);
+    console.log(req.scl);
+
+    if (req.scl !== 1)
+      return res.status(401).json({ errorMessage: "Unauthorized." });
 
     // validation
 
-    if (!email || !password || !passwordVerify)
+    if (!email || !name || !username || !scl)
       return res.status(400).json({
         errorMessage: "Please enter all required fields.",
       });
 
-    if (password.length < 6)
+    // make sure no account exists for this username or email
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail)
       return res.status(400).json({
-        errorMessage: "Please enter a password of at least 6 characters.",
+        errorMessage: "An account with this email already exists.",
+      });
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser)
+      return res.status(400).json({
+        errorMessage: "An account with this username already exists.",
+      });
+
+    // Generate One Time ID
+
+    var onetimeid = Math.random().toString(36).slice(-12);
+
+    // hash the password
+
+    const salt = await bcrypt.genSalt();
+    const passwordHash = await bcrypt.hash(onetimeid, salt);
+
+    // save the user in the database
+
+    const newUser = new User({
+      name,
+      email,
+      username,
+      scl,
+      onetimeid,
+      passwordHash,
+    });
+
+    const savedUser = await newUser.save();
+
+    res.json(savedUser);
+  } catch (err) {
+    console.log(err)
+    res.status(500).send();
+  }
+});
+
+router.put("/:username", async (req, res) => {
+  try {
+    const { onetimeid, password, passwordVerify } = req.body;
+    const username = req.params.username;
+
+    // validation
+
+    if (!username || !onetimeid || !password || !passwordVerify)
+      return res.status(400).json({
+        errorMessage: "Please enter all required fields.",
+      });
+
+    if (password.length < 8)
+      return res.status(400).json({
+        errorMessage: "Please enter a password of at least 8 characters.",
       });
 
     if (password !== passwordVerify)
       return res.status(400).json({
-        errorMessage: "Please enter the same twice for verification.",
-      });
-
-    // make sure no account exists for this email
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({
-        errorMessage: "An account with this email already exists.",
+        errorMessage: "Please enter the same password twice for verification.",
       });
 
     // hash the password
 
     const salt = await bcrypt.genSalt();
-    const passwordHash = await bcrypt.hash(password, salt);
+    const newpasswordHash = await bcrypt.hash(password, salt);
 
-    // save the user in the database
+    // make sure account exists
 
-    const newUser = new User({
-      email,
-      passwordHash,
-    });
+    const originalUser = await User.findOne({ username });
+    if (!originalUser)
+      return res.status(400).json({
+        errorMessage: "No account with this username",
+      });
 
-    const savedUser = await newUser.save();
+    if (onetimeid !== originalUser.onetimeid)
+      return res.status(400).json({
+        errorMessage: "No account with this username",
+      });
+
+    var newonetimeid = Math.random().toString(36).slice(-12);
+
+    originalUser.passwordHash = newpasswordHash;
+    originalUser.onetimeid = newonetimeid;
+
+    const savedUser = await originalUser.save();
 
     // create a JWT token
 
     const token = jwt.sign(
       {
         id: savedUser._id,
+        scl: savedUser.scl,
       },
       process.env.JWT_SECRET
     );
@@ -107,6 +173,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       {
         id: existingUser._id,
+        scl: existingUser.scl,
       },
       process.env.JWT_SECRET
     );

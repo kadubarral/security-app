@@ -68,9 +68,6 @@ function Login() {
           Log in
         </button>
       </form>
-      <p>
-        Don't have an account yet? <Link to="/register">Register here.</Link>
-      </p>
     </div>
   );
 }

@@ -2,6 +2,18 @@ const router = require("express").Router();
 const Article = require("../models/articleModel");
 const auth = require("../middleware/auth");
 
+router.get("/all", auth, async (req, res) => {
+  try {
+    if (req.scl > 3)
+      return res.status(401).json({ errorMessage: "Unauthorized." });
+
+    const articles = await Article.find();
+    res.json(articles);
+  } catch (err) {
+    res.status(500).send();
+  }
+});
+
 router.get("/", auth, async (req, res) => {
   try {
     const articles = await Article.find({ user: req.user });
@@ -13,8 +25,10 @@ router.get("/", auth, async (req, res) => {
 
 router.post("/", auth, async (req, res) => {
   try {
-    const { title, post } = req.body;
+    if (req.scl > 2)
+      return res.status(401).json({ errorMessage: "Unauthorized." });
 
+    const { title, post } = req.body;
     // validation
 
     if (!post) {

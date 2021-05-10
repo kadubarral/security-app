@@ -1,32 +1,31 @@
 import Axios from "axios";
-import React, { useContext, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import UserContext from "../../context/UserContext";
+import React, { useEffect, useState } from "react";
 import domain from "../../util/domain";
 import ErrorMessage from "../misc/ErrorMessage";
+import SuccessMessage from "../misc/SuccessMessage";
 import "./AuthForm.scss";
 
 function Register() {
+  const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
-  const [formPassword, setFormPassword] = useState("");
-  const [formPasswordVerify, setFormPasswordVerify] = useState("");
+  const [formUsername, setFormUsername] = useState("");
+  const [formScl, setFormScl] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
-
-  const { getUser } = useContext(UserContext);
-
-  const history = useHistory();
+  const [successMessage, setSuccessMessage] = useState(null);
 
   async function register(e) {
     e.preventDefault();
 
     const registerData = {
+      name: formName,
       email: formEmail,
-      password: formPassword,
-      passwordVerify: formPasswordVerify,
+      username: formUsername,
+      scl: formScl,
     };
 
     try {
-      await Axios.post(`${domain}/auth/`, registerData);
+      const user = await Axios.post(`${domain}/auth/register`, registerData);
+      setSuccessMessage(user.data.onetimeid);
     } catch (err) {
       if (err.response) {
         if (err.response.data.errorMessage) {
@@ -35,9 +34,6 @@ function Register() {
       }
       return;
     }
-
-    await getUser();
-    history.push("/");
   }
 
   return (
@@ -49,7 +45,21 @@ function Register() {
           clear={() => setErrorMessage(null)}
         />
       )}
+      {successMessage && (
+        <SuccessMessage
+          message={successMessage}
+          clear={() => setSuccessMessage(null)}
+        />
+      )}
       <form className="form" onSubmit={register}>
+      <label htmlFor="form-name">Name</label>
+        <input
+          id="form-name"
+          type="name"
+          value={formName}
+          onChange={(e) => setFormName(e.target.value)}
+        />
+
         <label htmlFor="form-email">Email</label>
         <input
           id="form-email"
@@ -58,29 +68,26 @@ function Register() {
           onChange={(e) => setFormEmail(e.target.value)}
         />
 
-        <label htmlFor="form-password">Password</label>
+        <label htmlFor="form-username">Username</label>
         <input
-          id="form-password"
-          type="password"
-          value={formPassword}
-          onChange={(e) => setFormPassword(e.target.value)}
+          id="form-username"
+          type="username"
+          value={formUsername}
+          onChange={(e) => setFormUsername(e.target.value)}
         />
 
-        <label htmlFor="form-passwordVerify">Verify password</label>
+        <label htmlFor="form-scl">Security Level</label>
         <input
-          id="form-passwordVerify"
-          type="password"
-          value={formPasswordVerify}
-          onChange={(e) => setFormPasswordVerify(e.target.value)}
+          id="form-scl"
+          type="scl"
+          value={formScl}
+          onChange={(e) => setFormScl(e.target.value)}
         />
 
         <button className="btn-submit" type="submit">
           Register
         </button>
       </form>
-      <p>
-        Already have an account? <Link to="/login">Login instead</Link>
-      </p>
     </div>
   );
 }

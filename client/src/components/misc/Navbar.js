@@ -1,6 +1,6 @@
 import Axios from "axios";
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import UserContext from "../../context/UserContext";
 import domain from "../../util/domain";
 import "./Navbar.scss";
@@ -9,9 +9,12 @@ import ComputerIcon from "../../images/icons/computer.png";
 function Navbar() {
   const { user, getUser } = useContext(UserContext);
 
+  const history = useHistory();
+
   async function logOut() {
     await Axios.get(`${domain}/auth/logOut`);
     await getUser();
+    history.push("/");
   }
 
   return (
@@ -24,19 +27,20 @@ function Navbar() {
       </Link>       
       <div className="links">
           <Link to="/articles">Articles</Link>
+      </div>
+      {user !== null && user ? (
+        <>
           <Link to="/chat">Chat</Link>
           <Link to="/admin">Admin</Link>
-      </div>
-      {user === null ? (
-        <>
-          <Link to="/login">Log in</Link>
-          <Link to="/register">Register</Link>
-        </>
-      ) : (
-        user && (
           <button className="btn-logout" onClick={logOut}>
             Log out
           </button>
+        </>
+      ) : (
+         (
+        <>
+          <Link to="/login">Log in</Link>
+        </>
         )
       )}
     </div>

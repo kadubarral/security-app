@@ -72,7 +72,7 @@ function Home() {
       {user === null && (
         <div className="no-user-message">
           <h2>Welcome to Article manager</h2>
-          <Link to="/register">Register here</Link>
+          <Link to="/login">Login</Link>
         </div>
       )}
     </div>

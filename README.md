@@ -2,7 +2,8 @@
 
 Backend
 ```
-node server/index
+cd server
+npm start
 ```
 
 Frontend
