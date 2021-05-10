@@ -1,48 +1,47 @@
 import Axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import Snippet from "./Snippet";
-import SnippetEditor from "./SnippetEditor";
+import Article from "./Article";
+import ArticleEditor from "./ArticleEditor";
 import "./Home.scss";
 import UserContext from "../../context/UserContext";
 import { Link } from "react-router-dom";
 import domain from "../../util/domain";
-import ArticleList from "../articles/ArticleList";
 
 function Home() {
-  const [snippets, setSnippets] = useState([]);
-  const [snippetEditorOpen, setSnippetEditorOpen] = useState(false);
-  const [editSnippetData, setEditSnippetData] = useState(null);
+  const [articles, setArticles] = useState([]);
+  const [articleEditorOpen, setArticleEditorOpen] = useState(false);
+  const [editArticleData, setEditArticleData] = useState(null);
 
   const { user } = useContext(UserContext);
 
   useEffect(() => {
-    if (!user) setSnippets([]);
-    else getSnippets();
+    if (!user) setArticles([]);
+    else getArticles();
   }, [user]);
 
-  async function getSnippets() {
-    const snippetsRes = await Axios.get(`${domain}/snippet/`);
-    setSnippets(snippetsRes.data);
+  async function getArticles() {
+    const articlesRes = await Axios.get(`${domain}/article/`);
+    setArticles(articlesRes.data);
   }
 
-  function editSnippet(snippetData) {
-    setEditSnippetData(snippetData);
-    setSnippetEditorOpen(true);
+  function editArticle(articleData) {
+    setEditArticleData(articleData);
+    setArticleEditorOpen(true);
   }
 
-  function renderSnippets() {
-    let sortedSnippets = [...snippets];
-    sortedSnippets = sortedSnippets.sort((a, b) => {
+  function renderArticles() {
+    let sortedArticles = [...articles];
+    sortedArticles = sortedArticles.sort((a, b) => {
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
 
-    return sortedSnippets.map((snippet, i) => {
+    return sortedArticles.map((article, i) => {
       return (
-        <Snippet
+        <Article
           key={i}
-          snippet={snippet}
-          getSnippets={getSnippets}
-          editSnippet={editSnippet}
+          article={article}
+          getArticles={getArticles}
+          editArticle={editArticle}
         />
       );
     });
@@ -50,31 +49,30 @@ function Home() {
 
   return (
     <div className="home">
-      {!snippetEditorOpen && user && (
+      {!articleEditorOpen && user && (
         <button
           className="btn-editor-toggle"
-          onClick={() => setSnippetEditorOpen(true)}
+          onClick={() => setArticleEditorOpen(true)}
         >
-          Add snippet
+          Add article
         </button>
       )}
-      {snippetEditorOpen && (
-        <SnippetEditor
-          setSnippetEditorOpen={setSnippetEditorOpen}
-          getSnippets={getSnippets}
-          editSnippetData={editSnippetData}
+      {articleEditorOpen && (
+        <ArticleEditor
+          setArticleEditorOpen={setArticleEditorOpen}
+          getArticles={getArticles}
+          editArticleData={editArticleData}
         />
       )}
-      {snippets.length > 0
-        ? renderSnippets()
+      {articles.length > 0
+        ? renderArticles()
         : user && (
-            <p className="no-snippets-msg">No snippets have been added yet.</p>
+            <p className="no-articles-msg">No articles have been added yet.</p>
           )}
       {user === null && (
         <div className="no-user-message">
-          <h2>Welcome to Snippet manager</h2>
+          <h2>Welcome to Article manager</h2>
           <Link to="/register">Register here</Link>
-          <ArticleList />
         </div>
       )}
     </div>

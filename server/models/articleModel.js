@@ -1,14 +1,17 @@
-
 const mongoose = require("mongoose");
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const articleSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, unique: true },
-    markdown: { type: String, required: true }
+    title: { type: String },
+    post: { type: String },
+    user: { type: ObjectId, required: true },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-module.exports = Article = mongoose.model("article", articleSchema);
+const Article = mongoose.model("article", articleSchema);
+
+module.exports = Article;

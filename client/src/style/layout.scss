@@ -20,20 +20,20 @@
   background: $lt-alert-warning-bg;
 }
 
-.code-block {
+.post-block {
   margin-bottom: 1em;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   padding: 1em;
-  background: $lt-code-bg;
-  color: $lt-code-text;
+  background: $lt-post-bg;
+  color: $lt-post-text;
 }
-.code-block-header {
+.post-block-header {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   padding: 0.5em 1em;
-  background: $dk-code-bg;
-  color: $lt-code-text;
+  background: $dk-post-bg;
+  color: $lt-post-text;
   font-weight: bold;
   font-size: initial;
 }
@@ -48,10 +48,10 @@ body[data-theme="dark"] {
     background: $dk-alert-warning-bg;
   }
 
-  .code-block {
-    background: $dk-code-bg;
+  .post-block {
+    background: $dk-post-bg;
   }
-  .code-block-header {
-    background: $dk-code-header-bg;
+  .post-block-header {
+    background: $dk-post-header-bg;
   }
 }

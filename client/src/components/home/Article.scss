@@ -1,16 +1,15 @@
 @import "../../style/mixins.scss";
 
-.snippet {
+.article {
   @include card();
   margin: 1.5rem 0;
 
   .title,
-  .description,
-  .code {
+  .post {
     margin-bottom: 1rem;
   }
 
-  .code {
+  .post {
     padding: 0.5rem;
     border-radius: 5px;
     background: var(--dark-color);

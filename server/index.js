@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
-dotenv.config({ path: './.env' });
+dotenv.config();
 
 // setup express server
 
@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://snippetmanager.netlify.app"],
+    origin: ["http://localhost:3000", "https://articlemanager.netlify.app"],
     credentials: true,
   })
 );
@@ -24,8 +24,7 @@ app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
 // set up routers
 
-app.use("/snippet", require("./routers/snippetRouter"));
-app.use("/articles", require("./routers/articleRoutes"));
+app.use("/article", require("./routers/articleRouter"));
 app.use("/auth", require("./routers/userRouter"));
 
 // connect to mongoDB

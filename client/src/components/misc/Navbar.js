@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import UserContext from "../../context/UserContext";
 import domain from "../../util/domain";
 import "./Navbar.scss";
+import ComputerIcon from "../../images/icons/computer.png";
 
 function Navbar() {
   const { user, getUser } = useContext(UserContext);
@@ -16,8 +17,16 @@ function Navbar() {
   return (
     <div className="navbar">
       <Link to="/">
-        <h1 className="title">Snippet manager</h1>
+        <img className="icon" src={ComputerIcon} alt="computer" />
       </Link>
+      <Link to="/">
+        <h1 className="title">Security App</h1>
+      </Link>       
+      <div className="links">
+          <Link to="/articles">Articles</Link>
+          <Link to="/chat">Chat</Link>
+          <Link to="/admin">Admin</Link>
+      </div>
       {user === null ? (
         <>
           <Link to="/login">Log in</Link>
