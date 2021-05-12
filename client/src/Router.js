@@ -5,6 +5,7 @@ import Register from "./components/auth/Register";
 import Home from "./components/home/Home";
 import ArticleList from "./components/home/ArticleList";
 import Navbar from "./components/misc/Navbar";
+import Chat from "./components/chat/Chat";
 
 function Router() {
   return (
@@ -25,6 +26,9 @@ function Router() {
         </Route>
         <Route path="/articles">
           <ArticleList />
+        </Route>
+        <Route path="/chat">
+          <Chat />
         </Route>
       </Switch>
     </BrowserRouter>
