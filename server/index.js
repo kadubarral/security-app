@@ -1,4 +1,5 @@
 const express = require("express");
+// const socket = require("socket.io");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -13,19 +14,22 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://articlemanager.netlify.app"],
+    origin: ["http://localhost:3000", "https://security-app.heroku.app"],
     credentials: true,
   })
 );
 app.use(cookieParser());
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+const server = app.listen(PORT, () =>
+  console.log(`Server started on port ${PORT}`)
+);
 
 // set up routers
 
 app.use("/article", require("./routers/articleRouter"));
 app.use("/auth", require("./routers/userRouter"));
+app.use("/admin", require("./routers/adminRouter"));
 
 // connect to mongoDB
 
@@ -41,3 +45,6 @@ mongoose.connect(
     console.log("Connected to MongoDB");
   }
 );
+
+// Socket programming
+require('./config/socketconfig')(server);
