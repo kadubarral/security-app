@@ -69,7 +69,7 @@ function Home() {
         : user && (
             <p className="no-articles-msg">No articles have been added yet.</p>
           )}
-      {user === null && (
+      {!user && (
         <div className="no-user-message">
           <h2>Welcome to Article manager</h2>
           <Link to="/login">Login</Link>

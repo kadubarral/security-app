@@ -1,101 +1,117 @@
-import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
-import "./Chat.scss";
+import React, {useContext, useState} from "react";
+import moment from "moment";
+import {styles} from "./styles";
+import UserContext from "../../context/UserContext";
+import {publicKeyPemToObject} from "../../util/crypto";
+import ChatContext from "../../context/ChatContext";
+import SocketContext from "../../context/SocketContext";
 
-let socket;
-const CONNECTION_PORT = "localhost:5000/";
+const {v4: uuidv4} = require('uuid');
 
 function Chat() {
-  // Before Login
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [room, setRoom] = useState("");
-  const [userName, setUserName] = useState("");
+    const [selectedContact, setSelectedContact] = useState(null);
+    const [messageBoxText, setMessageBoxText] = useState("");
+    const {user: currentUser, keypair} = useContext(UserContext);
+    const {contactList, messageHistory, addMessageToHistory, clearMessageHistory} = useContext(ChatContext);
+    const {sendMessage} = useContext(SocketContext);
 
-  // After Login
-  const [message, setMessage] = useState("");
-  const [messageList, setMessageList] = useState([]);
 
-  useEffect(() => {
-    socket = io(CONNECTION_PORT);
-  }, [CONNECTION_PORT]);
+    function handleTextMessageChange(event) {
+        setMessageBoxText(event.target.value);
+    }
 
-  useEffect(() => {
-    socket.on("receive_message", (data) => {
-      setMessageList([...messageList, data]);
+    function handleContactSelected(user) {
+        if (user.username !== selectedContact?.username) {
+            setMessageBoxText("");
+            setSelectedContact(user)
+        }
+    }
+
+    function onClear() {
+        clearMessageHistory(selectedContact.username);
+    }
+
+    function onSend() {
+        // look for the updated status on the contact list
+        const recipient = contactList.find(c => c.username === selectedContact?.username);
+
+        if (!recipient.isOnline) {
+            alert(`${recipient.username} is offline!`);
+            return;
+        }
+        if (messageBoxText?.trim()) {
+            const {privateKey: senderPrivateKey} = keypair;
+            const recipientPublicKey = publicKeyPemToObject(recipient.publicKey);
+
+            const messageObject = {
+                id: uuidv4(),
+                text: messageBoxText,
+                time: new Date().toISOString(),
+                from: currentUser.username,
+                to: recipient.username
+            };
+
+            // encrypts and sends the payload to the recipient
+            sendMessage(messageObject, senderPrivateKey, recipientPublicKey);
+            // saves the new message on the local history
+            addMessageToHistory(messageObject)
+            setMessageBoxText("");
+        }
+    }
+
+    const contactItems = contactList?.map(user => {
+        const fontWeight = user.username === selectedContact?.username ? "bold" : "normal";
+        const itemStyle = user.isOnline ? styles.contactItemOnline : styles.contactItemOffline;
+        const status = user.isOnline ? "online" : "offline";
+
+        return <li key={user.username} style={itemStyle} onClick={() => handleContactSelected(user)}>
+            <span style={{fontWeight}}>{user.username} ({status})</span>
+        </li>
     });
-  });
-  const connectToRoom = () => {
-    setLoggedIn(true);
-    socket.emit("join_room", room);
-  };
 
-  const sendMessage = async () => {
-    let messageContent = {
-      room: room,
-      content: {
-        author: userName,
-        message: message,
-      },
-    };
 
-    await socket.emit("send_message", messageContent);
-    setMessageList([...messageList, messageContent.content]);
-    setMessage("");
-  };
+    let messagesComponent = null;
+    if (selectedContact) {
+        messagesComponent = <div style={styles.messages}>
+            <h3 style={styles.messagesHeader}>Chat with {selectedContact.username}</h3>
 
-  return (
-    <div className="App">
-      {!loggedIn ? (
-        <div className="logIn">
-          <div className="inputs">
-            <input
-              type="text"
-              placeholder="Name..."
-              onChange={(e) => {
-                setUserName(e.target.value);
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Room..."
-              onChange={(e) => {
-                setRoom(e.target.value);
-              }}
-            />
-          </div>
-          <button onClick={connectToRoom}>Enter Chat</button>
-        </div>
-      ) : (
-        <div className="chatContainer">
-          <div className="messages">
-            {messageList.map((val, key) => {
-              return (
-                <div
-                  className="messageContainer"
-                  id={val.author == userName ? "You" : "Other"}
-                >
-                  <div className="messageIndividual">
-                    {val.author}: {val.message}
-                  </div>
+            <button style={styles.clearButton} onClick={onClear}>
+                Clear
+            </button>
+
+            {!messageHistory[selectedContact.username]?.length &&
+            <span style={styles.messageHeader}>No messages sent yet.</span>}
+
+            {messageHistory[selectedContact.username]?.map(message => {
+                const style = message.to === selectedContact.username ? styles.messageSent : styles.messageReceived;
+                return <div key={message.time} style={styles.messageContainer}>
+                    <span
+                        style={styles.messageHeader}>{message.from} on {moment(message.time).format("DD/MM/YYYY HH:mm:ss")}</span>
+                    <div style={style}>{message.text}</div>
                 </div>
-              );
             })}
-          </div>
 
-          <div className="messageInputs">
-            <input
-              type="text"
-              placeholder="Message..."
-              onChange={(e) => {
-                setMessage(e.target.value);
-              }}
-            />
-            <button onClick={sendMessage}>Send</button>
-          </div>
+            <div style={styles.boxContainer}>
+                <textarea maxLength={500}
+                          style={styles.messageBox} rows={5} cols={60} value={messageBoxText}
+                          onChange={handleTextMessageChange}/>
+                <button style={styles.sendButton} onClick={onSend}>
+                    Send
+                </button>
+            </div>
         </div>
-      )}
-    </div>
-  );
+    }
+    return (
+        <div style={styles.container}>
+            <div style={styles.contacts}>
+                <h3 style={styles.contactsHeader}>Contacts</h3>
+                <ul>
+                    {contactItems}
+                </ul>
+            </div>
+            {messagesComponent}
+        </div>
+    );
 }
 
 export default Chat;

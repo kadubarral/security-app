@@ -1,5 +1,5 @@
 import Axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import domain from "../../util/domain";
 import ErrorMessage from "../misc/ErrorMessage";
 import SuccessMessage from "../misc/SuccessMessage";
@@ -26,6 +26,8 @@ function Register() {
     try {
       const user = await Axios.post(`${domain}/auth/register`, registerData);
       setSuccessMessage(user.data.onetimeid);
+      //store user information in local storage
+      console.log(user.data.email);
     } catch (err) {
       if (err.response) {
         if (err.response.data.errorMessage) {
@@ -52,7 +54,7 @@ function Register() {
         />
       )}
       <form className="form" onSubmit={register}>
-      <label htmlFor="form-name">Name</label>
+        <label htmlFor="form-name">Name</label>
         <input
           id="form-name"
           type="name"
