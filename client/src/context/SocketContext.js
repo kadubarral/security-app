@@ -9,7 +9,7 @@ import {
 } from "../util/crypto";
 import ChatContext from "./ChatContext";
 import UserContext from "./UserContext";
-import domain from "../../util/domain";
+import domain from "../util/domain";
 
 const SocketContext = createContext({
     name: "socket"
