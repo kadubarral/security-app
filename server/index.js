@@ -15,7 +15,7 @@ app.disable("x-powered-by");
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://security-app.heroku.app"],
+    origin: ["http://localhost:3000", "https://mesw-secapp.herokuapp.com"],
     credentials: true,
   })
 );
