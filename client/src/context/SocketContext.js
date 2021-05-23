@@ -9,12 +9,13 @@ import {
 } from "../util/crypto";
 import ChatContext from "./ChatContext";
 import UserContext from "./UserContext";
+import domain from "../../util/domain";
 
 const SocketContext = createContext({
     name: "socket"
 });
 
-const CONNECTION_PORT = "localhost:5000/";
+const CONNECTION_PORT = `${domain}/`;
 
 export function SocketContextProvider(props) {
     const [socket, setSocket] = useState(null);
