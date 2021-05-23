@@ -20,14 +20,19 @@ router.post("/register", auth,async (req, res) => {
         }
 
         // make sure no account exists for this username or email
-        const existingEmail = await User.findOne({email});
+
+        let queryMail = { email: email.toString() };
+
+        const existingEmail = await User.findOne(queryMail);
         if (existingEmail) {
             return res.status(400).json({
                 errorMessage: "An account with this email already exists.",
             });
         }
 
-        const existingUser = await User.findOne({username});
+        let queryUser = { username: username.toString() };
+
+        const existingUser = await User.findOne(queryUser);
         if (existingUser) {
             return res.status(400).json({
                 errorMessage: "An account with this username already exists.",
@@ -66,7 +71,10 @@ router.post("/login", async (req, res) => {
         }
 
         // get user account
-        const existingUser = await User.findOne({username, onetimeid});
+
+        let queryLogin = { username: username.toString(), onetimeid: onetimeid.toString() };
+
+        const existingUser = await User.findOne(queryLogin);
         if (!existingUser) {
             return res.status(401).json({
                 errorMessage: "Wrong username or one-time id.",

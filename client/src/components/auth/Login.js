@@ -78,7 +78,7 @@ function Login() {
                 />
             )}
             <form className="form" onSubmit={login}>
-                <label htmlFor="form-username">Username</label>
+                <label htmlFor="form-username">Username <h6>(provided by your organization)</h6></label>
                 <input
                     id="form-username"
                     type="text"
@@ -86,20 +86,20 @@ function Login() {
                     onChange={(e) => setUsername(e.target.value)}
                 />
 
-                <label htmlFor="form-password">Password</label>
-                <input
-                    id="form-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-
-                <label htmlFor="form-onetimeid">One-time ID</label>
+                <label htmlFor="form-onetimeid">One-time ID <h6>(provided by your organization)</h6></label>
                 <input
                     id="form-onetimeid"
                     type="password"
                     value={onetimeid}
                     onChange={(e) => setOneTimeId(e.target.value)}
+                />
+
+                <label htmlFor="form-password">Set Your Local Password</label>
+                <input
+                    id="form-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
 
                 <button className="btn-submit" type="submit">

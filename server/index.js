@@ -10,6 +10,7 @@ dotenv.config();
 // setup express server
 
 const app = express();
+app.disable("x-powered-by");
 
 app.use(express.json());
 app.use(
