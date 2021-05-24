@@ -3,7 +3,7 @@ const {handleCheckIn, handleDisconnect, handleMessageSent} = require("../routers
 module.exports = (server) => {
     const socketCORSConfig = {
         cors: {
-            origin: "http://localhost:3000",
+            origin: ["http://localhost:3000", "https://mesw-secapp.herokuapp.com"],
             methods: ["GET", "POST"],
         },
     };
