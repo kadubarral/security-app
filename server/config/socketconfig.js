@@ -8,11 +8,7 @@ module.exports = (server) => {
         },
     };
     let io;
-    if (process.env.NODE_ENV === "production") {
-        io = require("socket.io")(server);
-    } else {
-        io = require("socket.io")(server, socketCORSConfig);
-    }
+    io = require("socket.io")(server, socketCORSConfig);
 
     io.on("connection", (socket) => {
         console.log("new socket connection: " + socket.id);
